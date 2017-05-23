@@ -57,6 +57,19 @@ else {
             }
         }
 
+        if (!startupCommand)
+        {
+            var packageJsonPath = "/home/site/wwwroot/package.json";
+            var json = fs.existsSync(packageJsonPath) && JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
+            if (typeof json == 'object' 
+                && typeof json.scripts == 'object'
+                && typeof json.scripts.start == 'string')
+            {
+                console.log("Found scripts.start in package.json, running 'npm start'.")
+                startupCommand = 'npm start';
+            }
+        }
+
         if (!startupCommand) {
             console.log("Empty startup command detected and no candidate startup script " +
                 "found. Running default static site.");
