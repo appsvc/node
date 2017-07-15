@@ -18,45 +18,15 @@ if (typeof process.env.WEBSITE_ROLE_INSTANCE_ID !== 'undefined'
     roleInstanceId = process.env.WEBSITE_ROLE_INSTANCE_ID;
 }
 
-// Is Application Insights enabled, with an associated ikey?
-var appInsightsEnabled = process.env.ENABLE_APPINSIGHTS && process.env.APPINSIGHTS_INSTRUMENTATIONKEY;
-var appInsightsPreloadArg = "--require /opt/startup/initAppInsights.js";
-var nodeCommandPrefix = "node ";
-
-if (appInsightsEnabled) {
-    console.log("Application Insights enabled");
-    nodeCommandPrefix += appInsightsPreloadArg + " ";
-}
-
-function augmentCommandIfNeccessary(command) {
-    if (!command || !appInsightsEnabled) {
-        return command;
-    }
-
-    // Application Insights is enabled, so we need to
-    // to update the specified startup command to pre-load it.
-    if (command.indexOf("pm2 start ") === 0) {
-        return command += " --node-args='" + appInsightsPreloadArg + "'";
-    } else if (command.indexOf("node ") === 0) {
-        // Simply replacing the prefix allows the user to specify
-        // additional Node flags, in addition to the AI preload one.
-        return command.replace("node ", nodeCommandPrefix);
-    }
-
-    // The command is using an unknown executable, and therefore,
-    // the App Insights runtime can't be automatically enabled.
-    return command;
-}
-
-var startupCommand = augmentCommandIfNeccessary(fs.readFileSync(CMDFILE, 'utf8').trim());
+var startupCommand = fs.readFileSync(CMDFILE, 'utf8').trim();
 
 // No user-provided startup command, check for scripts.start
 if (!startupCommand) {
     var packageJsonPath = "/home/site/wwwroot/package.json";
     var json = fs.existsSync(packageJsonPath) && JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
     if (typeof json == 'object' && typeof json.scripts == 'object' && typeof json.scripts.start == 'string') {
-        console.log("Found scripts.start in package.json");
-        startupCommand = augmentCommandIfNeccessary(json.scripts.start.trim());
+        console.log("Found scripts.start in package.json")
+        startupCommand = 'npm start';
     }
 }
 
@@ -67,7 +37,7 @@ if (!startupCommand) {
         var filename = "/home/site/wwwroot/" + autos[i];
         if (fs.existsSync(filename)) {
             console.log("No startup command entered, but found " + filename);
-            startupCommand = nodeCommandPrefix + filename;
+            startupCommand = "node " + filename;
             break;
         }
     }
@@ -77,7 +47,7 @@ if (!startupCommand) {
 if (!startupCommand) {
     console.log("No startup command or autodetected startup script " +
         "found. Running default static site.");
-    startupCommand = nodeCommandPrefix + DEFAULTAPP;
+    startupCommand = "node " + DEFAULTAPP;
 }
 
 // If HTTP logging is enabled and it doesn't appear that the user has tried to do any

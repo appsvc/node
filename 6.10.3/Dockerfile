@@ -1,10 +1,10 @@
-FROM node:4.5
+FROM node:6.10.3
 MAINTAINER Azure App Services Container Images <appsvc-images@microsoft.com>
 
 COPY startup /opt/startup
 COPY hostingstart.html /home/site/wwwroot/hostingstart.html
 COPY sshd_config /etc/ssh/
- 
+
 RUN npm install -g pm2 \
      && mkdir -p /home/LogFiles \
      && echo "root:Docker!" | chpasswd \
@@ -21,6 +21,7 @@ ENV PM2HOME /pm2home
 ENV PORT 8080
 ENV WEBSITE_ROLE_INSTANCE_ID localRoleInstance
 ENV WEBSITE_INSTANCE_ID localInstance
+ENV PATH ${PATH}:/home/site/wwwroot
 
 WORKDIR /home/site/wwwroot
 
