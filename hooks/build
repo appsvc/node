@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# docker tab would be replaced by tag in docker hub
+sed -i 's@{{tag}}@'"${DOCKER_TAG}"'@' Dockerfile
+docker build -t ${IMAGE_NAME} .

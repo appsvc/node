@@ -1,4 +1,4 @@
-FROM node:4.5.0
+FROM node:{{tag}}
 MAINTAINER Azure App Services Container Images <appsvc-images@microsoft.com>
 
 COPY startup /opt/startup
