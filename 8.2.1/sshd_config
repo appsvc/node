@@ -1,6 +1,6 @@
 # This is ssh server systemwide configuration file.
 #
-# /etc/sshd_config
+# /etc/ssh/sshd_config
 
 Port 			2222
 ListenAddress 		0.0.0.0
