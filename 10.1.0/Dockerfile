@@ -24,6 +24,7 @@ RUN npm install -g pm2 \
      && apk add bash \
      && cd /opt/startup \
      && npm install npm@latest -g \
+     && npm install \
      && chmod 755 /opt/startup/init_container.sh
 
 EXPOSE 2222 8080
