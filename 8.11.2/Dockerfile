@@ -26,6 +26,26 @@ RUN npm install -g pm2 \
      && npm install \
      && chmod 755 /opt/startup/init_container.sh
 
+# https://github.com/dockage/alpine/blob/master/3.8/openrc/Dockerfile
+RUN sed -i 's/^\(tty\d\:\:\)/#\1/g' /etc/inittab \
+    && sed -i \
+        -e 's/#rc_sys=".*"/rc_sys="docker"/g' \
+        -e 's/#rc_env_allow=".*"/rc_env_allow="\*"/g' \
+        -e 's/#rc_crashed_stop=.*/rc_crashed_stop=NO/g' \
+        -e 's/#rc_crashed_start=.*/rc_crashed_start=YES/g' \
+        -e 's/#rc_provide=".*"/rc_provide="loopback net"/g' \
+        /etc/rc.conf \
+    # Remove unnecessary services
+    && rm -f /etc/init.d/hwdrivers \
+            /etc/init.d/hwclock \
+            /etc/init.d/hwdrivers \
+            /etc/init.d/modules \
+            /etc/init.d/modules-load \
+            /etc/init.d/modloop \
+    # Can't do cgroups
+    && sed -i 's/cgroup_add_service /# cgroup_add_service /g' /lib/rc/sh/openrc-run.sh \
+    && sed -i 's/VSERVER/DOCKER/Ig' /lib/rc/sh/init.sh
+
 EXPOSE 2222 8080
 
 ENV PM2HOME /pm2home
