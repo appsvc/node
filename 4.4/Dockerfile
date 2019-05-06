@@ -1,6 +1,13 @@
-FROM oryxprod/node-4.4:20190301.2
-
+FROM oryxprod/node-4.4:20190401.5
 LABEL maintainer="Azure App Services Container Images <appsvc-images@microsoft.com>"
+
+RUN  echo "deb http://deb.debian.org/debian/ jessie main" > /etc/apt/sources.list \
+  && echo "deb-src http://deb.debian.org/debian/ jessie main" >> /etc/apt/sources.list \
+  && echo "deb http://security.debian.org/ jessie/updates main" >> /etc/apt/sources.list \
+  && echo "deb-src http://security.debian.org/ jessie/updates main" >> /etc/apt/sources.list \
+  && echo "deb http://archive.debian.org/debian jessie-backports main" >> /etc/apt/sources.list \
+  && echo "deb-src http://archive.debian.org/debian jessie-backports main" >> /etc/apt/sources.list \
+  && echo "Acquire::Check-Valid-Until \"false\";" > /etc/apt/apt.conf
 
 COPY startup /opt/startup
 COPY hostingstart.html /home/site/wwwroot/hostingstart.html
