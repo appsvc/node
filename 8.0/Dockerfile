@@ -1,4 +1,4 @@
-FROM  mcr.microsoft.com/oryx/node-8.0:20181222.1
+FROM  mcr.microsoft.com/oryx/node-8.0:20190501.3
 
 MAINTAINER Azure App Services Container Images <appsvc-images@microsoft.com>
 
