@@ -22,7 +22,7 @@ chmod 777 "$PM2HOME"
 ln -s /home/LogFiles "$PM2HOME"/logs
 
 # Get environment variables to show up in SSH session
-eval $(printenv | awk -F= '{print "export " $1"="$2 }' >> /etc/profile)
+eval $(printenv | sed -n "s/^\([^=]\+\)=\(.*\)$/export \1=\2/p" | sed 's/"/\\\"/g' | sed '/=/s//="/' | sed 's/$/"/' >> /etc/profile)
 
 echo "$@" > /opt/startup/startupCommand
 node /opt/startup/generateStartupCommand.js
