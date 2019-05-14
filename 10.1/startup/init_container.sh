@@ -20,31 +20,31 @@ chmod 777 "$PM2HOME"
 ln -s /home/LogFiles "$PM2HOME"/logs
 
 # Get environment variables to show up in SSH session
-eval $(printenv | awk -F= '{print "export " $1"="$2 }' >> /etc/profile)
+eval $(printenv | sed -n "s/^\([^=]\+\)=\(.*\)$/export \1=\2/p" | sed 's/"/\\\"/g' | sed '/=/s//="/' | sed 's/$/"/' >> /etc/profile)
 
 # starting sshd process
+sed -i "s/SSH_PORT/$SSH_PORT/g" /etc/ssh/sshd_config
 /usr/sbin/sshd
 
-# feature flag for remote debugging for with npm
-# set flag and restart site to remove these changes
-if [ "$APPSVC_REMOTE_DEBUGGING" = "TRUE" ] && [ ! "$APPSETTING_REMOTE_DEBUGGING_FEATURE_FLAG" = "FALSE" ]
-then
-        mv /usr/local/bin/node /usr/local/bin/node-original
-        mv /opt/startup/node-wrapper.sh /usr/local/bin/node
-        chmod a+x /usr/local/bin/node
-        sed -i 's/env node/env node-original/' /usr/local/lib/node_modules/npm/bin/npm-cli.js
-        sed -i 's/env node/env node-original/' /usr/local/lib/node_modules/npm/bin/npx-cli.js
-        sed -i 's/env node/env node-original/' /usr/local/lib/node_modules/pm2/bin/pm2
-        sed -i 's/env node/env node-original/' /usr/local/lib/node_modules/pm2/bin/pm2-dev
-        sed -i 's/env node/env node-original/' /usr/local/lib/node_modules/pm2/bin/pm2-docker
-        sed -i 's/env node/env node-original/' /usr/local/lib/node_modules/pm2/bin/pm2-runtime
-        sed -i 's/env node/env node-original/' /opt/startup/generateStartupCommand.js
+STARTUP_COMMAND_PATH="/opt/startup/startup.sh"
+ORYX_ARGS="-appPath /home/site/wwwroot -output $STARTUP_COMMAND_PATH -usePM2 -defaultApp=/opt/startup/default-static-site.js -userStartupCommand '$@'"
+
+if [ "$APPSVC_REMOTE_DEBUGGING" = "TRUE" ]; then
+    ORYX_ARGS="-remoteDebug -debugPort $APPSVC_TUNNEL_PORT $ORYX_ARGS"
+elif [ "$APPSVC_REMOTE_DEBUGGING_BREAK" = "TRUE" ]; then
+    ORYX_ARGS="-remoteDebugBrk -debugPort $APPSVC_TUNNEL_PORT $ORYX_ARGS"
 fi
 
-echo "$@" > /opt/startup/startupCommand
-node /opt/startup/generateStartupCommand.js
-chmod 755 /opt/startup/startupCommand
+if [ -f "oryx-manifest.toml" ] && [ "$APPSVC_RUN_ZIP" = "TRUE" ]; then
+    # NPM adds the current directory's node_modules/.bin folder to PATH before it runs, so commands in
+    # "npm start" can files there. Since we move node_modules, we have to add it to the path ourselves.
+    echo 'Fixing up path'
+    export PATH=/node_modules/.bin:$PATH
+    echo "$PATH"
+fi
 
-STARTUPCOMMAND=$(cat /opt/startup/startupCommand)
+eval oryx $ORYX_ARGS
+
+STARTUPCOMMAND=$(cat $STARTUP_COMMAND_PATH)
 echo "Running $STARTUPCOMMAND"
-eval "exec $STARTUPCOMMAND" 
+$STARTUP_COMMAND_PATH
