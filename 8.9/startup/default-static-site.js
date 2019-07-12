@@ -1,7 +1,7 @@
 var express = require('express');
 var server = express();
 var options = {
-    index: 'hostingstart.html'
+    index: ['index.html','hostingstart.html']
 };
 server.use('/', express.static('/opt/startup', options));
 server.listen(process.env.PORT);
