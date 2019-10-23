@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/oryx/node:9.4-20190730.1
+FROM mcr.microsoft.com/oryx/node:9.4-20191018.1
 LABEL maintainer="Azure App Services Container Images <appsvc-images@microsoft.com>"
 
 RUN echo "ipv6" >> /etc/modules
@@ -8,8 +8,18 @@ RUN npm install -g pm2 \
      && echo "root:Docker!" | chpasswd \
      && echo "cd /home" >> /etc/bash.bashrc \
      && apt-get update \  
-     && apt-get install --yes --no-install-recommends openssh-server vim curl wget tcptraceroute openrc
-
+     && apt-get install --yes --no-install-recommends \
+      openssh-server \
+      vim \
+      curl \
+      wget \
+      tcptraceroute \
+      openrc \
+      yarn \
+      net-tools \
+      dnsutils \
+      tcpdump \
+      iproute2
 # setup default site
 RUN rm -f /etc/ssh/sshd_config
 COPY startup /opt/startup
@@ -24,6 +34,7 @@ RUN chmod -R +x /opt/startup \
    && chmod -R +x /tmp/ssh_setup.sh \
    && (sleep 1;/tmp/ssh_setup.sh 2>&1 > /dev/null) \
    && rm -rf /tmp/* \
+   && echo "cd /home" >> /root/.bashrc \
    && cd /opt/startup \
    && npm install 
 

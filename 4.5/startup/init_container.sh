@@ -29,13 +29,13 @@ sed -i "s/SSH_PORT/$SSH_PORT/g" /etc/ssh/sshd_config
 STARTUP_COMMAND_PATH="/opt/startup/startup.sh"
 ORYX_ARGS="-appPath /home/site/wwwroot -output $STARTUP_COMMAND_PATH -usePM2 -defaultApp=/opt/startup/default-static-site.js -userStartupCommand '$@'"
 
-if [ $APPSVC_REMOTE_DEBUGGING == "TRUE" ]; then
+if [[ $APPSVC_REMOTE_DEBUGGING == "TRUE" ]]; then
     ORYX_ARGS="-remoteDebug -debugPort $APPSVC_TUNNEL_PORT $ORYX_ARGS"
-elif [ "$APPSVC_REMOTE_DEBUGGING_BREAK" == "TRUE" ]; then
+elif [[ "$APPSVC_REMOTE_DEBUGGING_BREAK" == "TRUE" ]]; then
     ORYX_ARGS="-remoteDebugBrk -debugPort $APPSVC_TUNNEL_PORT $ORYX_ARGS"
 fi
 
-if [ -f "oryx-manifest.toml" ] && [ "$APPSVC_RUN_ZIP" = "TRUE" ]; then
+if [ -f "oryx-manifest.toml" ] && [[ "$APPSVC_RUN_ZIP" == "TRUE" ]]; then
     # NPM adds the current directory's node_modules/.bin folder to PATH before it runs, so commands in
     # "npm start" can files there. Since we move node_modules, we have to add it to the path ourselves.
     echo 'Fixing up path'

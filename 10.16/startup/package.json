@@ -1,0 +1,15 @@
+{
+  "name": "default-static-site",
+  "version": "1.0.0",
+  "description": "Express-driven static site hosted from default App Service wwwroot directory",
+  "main": "default-static-site.js",
+  "dependencies": {
+    "express": "4.15.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Azure App Services Container Images <appsvc-images@microsoft.com>",
+  "license": "Apache-2.0"
+}
